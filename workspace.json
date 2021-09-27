@@ -1,6 +1,72 @@
 {
   "version": 2,
   "projects": {
+    "api-interfaces": {
+      "root": "libs/api-interfaces",
+      "sourceRoot": "libs/api-interfaces/src",
+      "projectType": "library",
+      "targets": {
+        "lint": {
+          "executor": "@nrwl/linter:eslint",
+          "outputs": ["{options.outputFile}"],
+          "options": {
+            "lintFilePatterns": ["libs/api-interfaces/**/*.ts"]
+          }
+        },
+        "test": {
+          "executor": "@nrwl/jest:jest",
+          "outputs": ["coverage/libs/api-interfaces"],
+          "options": {
+            "jestConfig": "libs/api-interfaces/jest.config.js",
+            "passWithNoTests": true
+          }
+        }
+      }
+    },
+    "data-providers": {
+      "root": "libs/data-providers",
+      "sourceRoot": "libs/data-providers/src",
+      "projectType": "library",
+      "targets": {
+        "lint": {
+          "executor": "@nrwl/linter:eslint",
+          "outputs": ["{options.outputFile}"],
+          "options": {
+            "lintFilePatterns": ["libs/data-providers/**/*.ts"]
+          }
+        },
+        "test": {
+          "executor": "@nrwl/jest:jest",
+          "outputs": ["coverage/libs/data-providers"],
+          "options": {
+            "jestConfig": "libs/data-providers/jest.config.js",
+            "passWithNoTests": true
+          }
+        }
+      }
+    },
+    "db": {
+      "root": "libs/db",
+      "sourceRoot": "libs/db/src",
+      "projectType": "library",
+      "targets": {
+        "lint": {
+          "executor": "@nrwl/linter:eslint",
+          "outputs": ["{options.outputFile}"],
+          "options": {
+            "lintFilePatterns": ["libs/db/**/*.ts"]
+          }
+        },
+        "test": {
+          "executor": "@nrwl/jest:jest",
+          "outputs": ["coverage/libs/db"],
+          "options": {
+            "jestConfig": "libs/db/jest.config.js",
+            "passWithNoTests": true
+          }
+        }
+      }
+    },
     "pet-hospital-api": {
       "root": "apps/pet-hospital-api",
       "sourceRoot": "apps/pet-hospital-api/src",

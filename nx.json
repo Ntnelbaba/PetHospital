@@ -27,6 +27,15 @@
     ]
   },
   "projects": {
+    "api-interfaces": {
+      "tags": []
+    },
+    "data-providers": {
+      "tags": []
+    },
+    "db": {
+      "tags": []
+    },
     "pet-hospital-api": {
       "tags": []
     }

@@ -24,11 +24,13 @@
     {
       "files": ["*.ts", "*.tsx"],
       "extends": ["plugin:@nrwl/nx/typescript"],
+      "excludedFiles": ["**/*controller*"],
       "rules": {}
     },
     {
       "files": ["*.js", "*.jsx"],
       "extends": ["plugin:@nrwl/nx/javascript"],
+      "excludedFiles": ["**/*controller*"],
       "rules": {}
     }
   ]
