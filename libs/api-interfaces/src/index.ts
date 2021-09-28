@@ -5,3 +5,4 @@ export * from './lib/dto/patient/update-patient.dto';
 
 // Models
 export * from './lib/model/patient';
+export * from './lib/model/food-type';

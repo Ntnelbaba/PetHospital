@@ -3,7 +3,9 @@ import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { PatientSchema, PatientDocument } from '../schema/patient.schema';
 import {
+  CreateFoodTypeDto,
   CreatePatientDto,
+  FoodType,
   Patient,
   UpdatePatientDto,
 } from '@pet-hospital/api-interfaces';
@@ -15,8 +17,14 @@ export class PatientsDbService {
     private PatientModel: Model<PatientDocument>
   ) {}
 
-  async create(createPatientDto: CreatePatientDto): Promise<PatientSchema> {
-    const createdPatient = new this.PatientModel(createPatientDto);
+  async create(
+    createPatientDto: CreatePatientDto,
+    foodTypes: FoodType[]
+  ): Promise<PatientSchema> {
+    const createdPatient = new this.PatientModel({
+      ...createPatientDto,
+      foodTypes,
+    });
     return createdPatient.save();
   }
 

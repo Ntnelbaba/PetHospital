@@ -7,6 +7,8 @@ export class FoodTypeSchema {
     @Prop()
     petType: string;
     @Prop()
-    foodType: string;
+    barcode: string;
+    @Prop()
+    genericName: string;
 }
 export const FoodTypeSchemaFactory = SchemaFactory.createForClass(FoodTypeSchema);

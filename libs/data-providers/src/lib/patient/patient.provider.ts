@@ -4,15 +4,24 @@ import {
 } from '@pet-hospital/api-interfaces';
 import { PatientsDbService } from '@pet-hospital/db';
 import { Injectable, NotFoundException } from '@nestjs/common';
+import { FoodTypeProvider } from '../food-type/food-type.provider';
 
 @Injectable()
 export class PatientProvider {
-  constructor(private readonly patientsDbService: PatientsDbService) {}
+  constructor(
+    private readonly patientsDbService: PatientsDbService,
+    private foodTypeProvider: FoodTypeProvider
+  ) {}
   getAllPatients() {
     return this.patientsDbService.findAll();
   }
-  newPatient(createPatientDto: CreatePatientDto) {
-    return this.patientsDbService.create(createPatientDto);
+  async newPatient(createPatientDto: CreatePatientDto) {
+    return this.patientsDbService.create(
+      {
+        ...createPatientDto,
+      },
+      await this.foodTypeProvider.getPetFoodTypes(createPatientDto.petType)
+    );
   }
   updatePatient(id: string, updatePatientDto: UpdatePatientDto) {
     return this.patientsDbService
