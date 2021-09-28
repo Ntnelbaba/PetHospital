@@ -30,6 +30,9 @@
     "api-interfaces": {
       "tags": []
     },
+    "auth": {
+      "tags": []
+    },
     "data-providers": {
       "tags": []
     },

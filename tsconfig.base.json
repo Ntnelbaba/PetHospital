@@ -16,6 +16,7 @@
     "baseUrl": ".",
     "paths": {
       "@pet-hospital/api-interfaces": ["libs/api-interfaces/src/index.ts"],
+      "@pet-hospital/auth": ["libs/auth/src/index.ts"],
       "@pet-hospital/data-providers": ["libs/data-providers/src/index.ts"],
       "@pet-hospital/db": ["libs/db/src/index.ts"]
     }
