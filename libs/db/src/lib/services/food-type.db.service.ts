@@ -2,7 +2,8 @@ import { Model } from 'mongoose';
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { FoodTypeSchema, FoodTypeDocument } from '../schema/food-type.schema';
-import { CreateFoodTypeDto, FoodType } from '@pet-hospital/api-interfaces';
+import { CreateFoodTypeDto } from '@pet-hospital/api-interfaces';
+import { FoodType } from '../model/food-type';
 
 @Injectable()
 export class FoodTypeDbService {
@@ -11,7 +12,7 @@ export class FoodTypeDbService {
     private FoodTypeModel: Model<FoodTypeDocument>
   ) {}
 
-  async create(createFoodTypeDto: CreateFoodTypeDto): Promise<FoodTypeSchema> {
+  async create(createFoodTypeDto: CreateFoodTypeDto): Promise<FoodTypeDocument> {
     const createdFoodType = new this.FoodTypeModel(createFoodTypeDto);
     return createdFoodType.save();
   }
@@ -19,6 +20,16 @@ export class FoodTypeDbService {
     try {
       return (await this.FoodTypeModel.find({ petType }).exec()).map(
         (petFoodTypes) => new FoodType(petFoodTypes)
+      );
+    } catch (err) {
+      console.error(err);
+      return null;
+    }
+  }
+  async findIdsByPetType(petType: string): Promise<string[] | null> {
+    try {
+      return (await this.FoodTypeModel.find({ petType }).exec()).map(
+        (petFoodTypes) => petFoodTypes._id.toHexString()
       );
     } catch (err) {
       console.error(err);

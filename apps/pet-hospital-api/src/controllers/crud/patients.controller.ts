@@ -3,7 +3,6 @@ import {
   Controller,
   Delete,
   Get,
-  NotFoundException,
   Param,
   Post,
   Put,
@@ -18,8 +17,8 @@ import {
   CreatePatientDto,
   UpdatePatientDto,
 } from '@pet-hospital/api-interfaces';
-import { Patient } from '@pet-hospital/api-interfaces';
 import { PatientProvider } from '@pet-hospital/data-providers';
+import { Patient } from '@pet-hospital/db';
 
 @ApiBearerAuth()
 @ApiTags('patients-CRUD')

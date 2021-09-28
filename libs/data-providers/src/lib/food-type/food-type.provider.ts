@@ -1,7 +1,6 @@
 import { Injectable } from '@nestjs/common';
-import { FoodTypeDbService } from '@pet-hospital/db';
+import { FoodType, FoodTypeDbService } from '@pet-hospital/db';
 import { HttpService } from '@nestjs/axios';
-import { FoodType } from '@pet-hospital/api-interfaces';
 
 const BARCODE_LENGTH = 12;
 
@@ -11,28 +10,28 @@ export class FoodTypeProvider {
     private readonly foodTypeDbService: FoodTypeDbService,
     private http: HttpService
   ) {}
-  async getPetFoodTypes(petType: string): Promise<FoodType[]> {
+  async getPetFoodTypes(petType: string): Promise<string[]> {
     return await this.foodTypeDbService
-      .findByPetType(petType)
+      .findIdsByPetType(petType)
       .then((res) => this.handleFoodTypeFromDb(petType, res))
       .catch((err) => this.handleErrorFromDb(petType, err));
   }
   handleFoodTypeFromDb(
     petType: string,
-    foodTypes: FoodType[]
-  ): Promise<FoodType[]> {
+    foodTypes: string[]
+  ): Promise<string[]> {
     if (foodTypes?.length > 0) {
       return Promise.resolve(foodTypes);
     }
     return this.registerNewPetTypeFood(petType);
   }
-  handleErrorFromDb(petType: string, err): Promise<FoodType[]> {
+  handleErrorFromDb(petType: string, err): Promise<string[]> {
     console.error(err);
     return this.registerNewPetTypeFood(petType);
   }
-  async registerNewPetTypeFood(petType: string): Promise<FoodType[]> {
+  async registerNewPetTypeFood(petType: string): Promise<string[]> {
     const randomFoodTypes = this.makeRandomFoodTypes();
-    const foodTypesCreated: FoodType[] = [];
+    const foodTypesCreated: string[] = [];
     (await randomFoodTypes).forEach((foodType) =>
       this.foodTypeDbService
         .create({
@@ -40,7 +39,7 @@ export class FoodTypeProvider {
           barcode: foodType.barcode,
           genericName: foodType.genericName,
         })
-        .then((res) => foodTypesCreated.push(new FoodType(res)))
+        .then((res) => foodTypesCreated.push(res._id.toHexString()))
     );
     return foodTypesCreated;
   }
@@ -77,7 +76,7 @@ export class FoodTypeProvider {
     }
     return foodTypesArray;
   }
-  
+
   private getRandomBarcode() {
     const barcodeBegining = Math.floor(100 + Math.random() * 900)
       .toString()

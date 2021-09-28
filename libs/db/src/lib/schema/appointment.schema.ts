@@ -1,21 +1,24 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { Document, Types } from 'mongoose';
-import { PatientSchema } from './Patient.schema';
+import { Document, Schema as SchemaFromMongoose } from 'mongoose';
+import { PatientSchema } from './patient.schema';
 
-export type AppointmentDocument = Appointment & Document;
+export type AppointmentSchemaDocument = AppointmentSchema & Document;
 @Schema()
-export class Appointment {
-    @Prop({ type: Types.ObjectId, ref: 'Patient' })
-    patient: PatientSchema;
-    @Prop()
-    start_time: Date;
-    @Prop()
-    end_time: Date;
-    @Prop()
-    description: string;
-    @Prop()
-    total_fee: string;
-    @Prop()
-    fee_paid: string;
+export class AppointmentSchema {
+  @Prop({ type: SchemaFromMongoose.Types.ObjectId, ref: 'PatientSchema' })
+  patient: PatientSchema;
+  @Prop()
+  startTime: Date;
+  @Prop()
+  endTime: Date;
+  @Prop()
+  description: string;
+  @Prop()
+  totalFee: number;
+  @Prop()
+  feePaid: number;
+  @Prop()
+  currencyPaid: string;
 }
-export const AppointmentSchema = SchemaFactory.createForClass(Appointment);
+export const AppointmentSchemaFactory =
+  SchemaFactory.createForClass(AppointmentSchema);

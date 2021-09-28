@@ -1,16 +1,16 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { FoodType } from '@pet-hospital/api-interfaces';
-import { Document } from 'mongoose';
+import { Document, Schema as SchemaFromMongoose} from 'mongoose';
+import { FoodTypeSchema } from './food-type.schema';
 
-export type PatientDocument = PatientSchema & Document;
+export type PatientSchemaDocument = PatientSchema & Document;
 @Schema()
 export class PatientSchema {
   @Prop()
   name: string;
   @Prop()
   petType: string;
-  @Prop()
-  foodTypes: FoodType[];
+  @Prop({ type: [{ type: SchemaFromMongoose.Types.ObjectId, ref: 'FoodTypeSchema' }] })
+  foodTypes: FoodTypeSchema[];
   @Prop()
   ownerName: string;
   @Prop()

@@ -1,25 +1,23 @@
 import { Model, Types } from 'mongoose';
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { PatientSchema, PatientDocument } from '../schema/patient.schema';
+import { PatientSchema, PatientSchemaDocument } from '../schema/patient.schema';
 import {
-  CreateFoodTypeDto,
   CreatePatientDto,
-  FoodType,
-  Patient,
   UpdatePatientDto,
 } from '@pet-hospital/api-interfaces';
+import { Patient } from '../model/patient';
 
 @Injectable()
 export class PatientsDbService {
   constructor(
     @InjectModel(PatientSchema.name)
-    private PatientModel: Model<PatientDocument>
+    private PatientModel: Model<PatientSchemaDocument>
   ) {}
 
   async create(
     createPatientDto: CreatePatientDto,
-    foodTypes: FoodType[]
+    foodTypes: string[]
   ): Promise<PatientSchema> {
     const createdPatient = new this.PatientModel({
       ...createPatientDto,
@@ -29,15 +27,16 @@ export class PatientsDbService {
   }
 
   async findAll(): Promise<Patient[]> {
-    return (await this.PatientModel.find().exec()).map(
+    return (await this.PatientModel.find().populate('foodTypes').exec()).map(
       (patientFromDb) => new Patient(patientFromDb)
     );
   }
   async findOneById(id: string): Promise<Patient | null> {
     try {
       return this.PatientModel.findById(new Types.ObjectId(id))
+        .populate('foodTypes')
         .exec()
-        .then((result: PatientDocument) => {
+        .then((result: PatientSchemaDocument) => {
           if (!result) {
             return null;
           }
@@ -50,9 +49,11 @@ export class PatientsDbService {
   }
   async findByName(name: string): Promise<Patient[] | null> {
     try {
-      return (await this.PatientModel.find({ name: name }).exec()).map(
-        (patientFromDb) => new Patient(patientFromDb)
-      );
+      return (
+        await this.PatientModel.find({ name: name })
+          .populate('foodTypes')
+          .exec()
+      ).map((patientFromDb) => new Patient(patientFromDb));
     } catch (err) {
       console.error(err);
       return null;
