@@ -10,7 +10,6 @@ export interface IAppointment {
   description: string;
   totalFee: number;
   feePaid: number;
-  currencyPaid: string;
   feeUnpaid: number;
 }
 export class Appointment {
@@ -21,7 +20,6 @@ export class Appointment {
     this.endTime = appointmentObject.endTime;
     this.totalFee = appointmentObject.totalFee;
     this.feePaid = appointmentObject.feePaid;
-    this.currencyPaid = appointmentObject.currencyPaid;
     this.feeUnpaid = this.totalFee - this.feePaid;
   }
   id: string;
@@ -31,6 +29,5 @@ export class Appointment {
   description: string;
   totalFee: number;
   feePaid: number;
-  currencyPaid: string;
   feeUnpaid: number;
 }

@@ -4,16 +4,30 @@ import {
 } from '@pet-hospital/api-interfaces';
 import { Appointment, AppointmentsDbService } from '@pet-hospital/db';
 import { Injectable, NotFoundException } from '@nestjs/common';
+import { CurrencyProvider } from '../currency/currency.provider';
 
 @Injectable()
 export class AppointmentProvider {
-  constructor(private readonly appointmentsDbService: AppointmentsDbService) {}
+  constructor(
+    private readonly appointmentsDbService: AppointmentsDbService,
+    private readonly currencyProvider: CurrencyProvider
+  ) {}
   getAllAppointments() {
     return this.appointmentsDbService.findAll();
   }
   async newAppointment(createAppointmentDto: CreateAppointmentDto) {
+    const totalFeeDollar = this.currencyProvider.convertToDollar(
+      createAppointmentDto.totalFee,
+      createAppointmentDto.currencyPaid
+    );
+    const feePaidDollar = this.currencyProvider.convertToDollar(
+      createAppointmentDto.feePaid,
+      createAppointmentDto.currencyPaid
+    );
     return this.appointmentsDbService.create({
       ...createAppointmentDto,
+      totalFee: totalFeeDollar,
+      feePaid: feePaidDollar,
     });
   }
   updateAppointment(id: string, updateAppointmentDto: UpdateAppointmentDto) {

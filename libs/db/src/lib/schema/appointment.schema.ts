@@ -17,8 +17,6 @@ export class AppointmentSchema {
   totalFee: number;
   @Prop()
   feePaid: number;
-  @Prop()
-  currencyPaid: string;
 }
 export const AppointmentSchemaFactory =
   SchemaFactory.createForClass(AppointmentSchema);
