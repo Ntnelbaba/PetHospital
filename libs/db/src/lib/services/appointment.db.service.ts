@@ -53,9 +53,44 @@ export class AppointmentsDbService {
   async findByPatient(patientId: string): Promise<Appointment[] | null> {
     try {
       return (
+        await this.AppointmentModel.find()
+          .where(`this.patient._id == ${patientId}`)
+          .populate({ path: 'patient', populate: 'foodTypes' })
+          .exec()
+      ).map((AppointmentFromDb) => new Appointment(AppointmentFromDb));
+    } catch (err) {
+      console.error(err);
+      return null;
+    }
+  }
+  async findByDate(startDate: Date, endDate?: Date): Promise<Appointment[] | null> {
+    try {
+      const dateWithoutTime = new Date(startDate.toDateString());
+      let nextDateWithoutTime = new Date(endDate?.toDateString());
+      if (!endDate) {
+        nextDateWithoutTime = new Date(startDate.toDateString());
+        nextDateWithoutTime.setDate(dateWithoutTime.getDate() + 1);
+      }
+      return (
         await this.AppointmentModel.find({
-          'patient.$id': new Types.ObjectId(patientId),
+          startTime: {
+            $gte: dateWithoutTime,
+            $lt: nextDateWithoutTime,
+          },
         })
+          .populate({ path: 'patient', populate: 'foodTypes' })
+          .exec()
+      ).map((AppointmentFromDb) => new Appointment(AppointmentFromDb));
+    } catch (err) {
+      console.error(err);
+      return null;
+    }
+  }
+  async findUnpaid(): Promise<Appointment[] | null> {
+    try {
+      return (
+        await this.AppointmentModel.find()
+          .where('this.totalFee - this.feePaid > 0')
           .populate({ path: 'patient', populate: 'foodTypes' })
           .exec()
       ).map((AppointmentFromDb) => new Appointment(AppointmentFromDb));

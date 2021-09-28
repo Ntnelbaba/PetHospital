@@ -17,14 +17,16 @@ import {
   CreatePatientDto,
   UpdatePatientDto,
 } from '@pet-hospital/api-interfaces';
-import { PatientProvider } from '@pet-hospital/data-providers';
+import { AppointmentProvider, PatientProvider } from '@pet-hospital/data-providers';
 import { Patient } from '@pet-hospital/db';
 
 @ApiBearerAuth()
-@ApiTags('patients-CRUD')
 @Controller('patients')
 export class PatientsController {
-  constructor(private readonly patientsProvider: PatientProvider) {}
+  constructor(
+    private readonly patientsProvider: PatientProvider,
+    private readonly appointmentsProvider: AppointmentProvider
+  ) {}
 
   @Get()
   @ApiOperation({ summary: 'Get all patients' })
@@ -34,14 +36,29 @@ export class PatientsController {
     type: Patient,
   })
   @ApiResponse({ status: 403, description: 'Forbidden.' })
+  @ApiTags('Patients - CRUD')
   getAllPatients() {
     return this.patientsProvider.getAllPatients();
+  }
+
+  @Get('balance/:id')
+  @ApiOperation({ summary: 'Get patient remaining balance' })
+  @ApiResponse({
+    status: 200,
+    description: 'All Cool :)',
+    type: Patient,
+  })
+  @ApiResponse({ status: 403, description: 'Forbidden.' })
+  @ApiTags('Patients - General', 'Balance')
+  getPatianceBalance(@Param('id') patientId: string) {
+    return this.appointmentsProvider.getPatientBalance(patientId);
   }
 
   @Post()
   @ApiOperation({ summary: 'Create new patient' })
   @ApiResponse({ status: 201, description: 'All Cool :)' })
   @ApiResponse({ status: 403, description: 'Forbidden.' })
+  @ApiTags('Patients - CRUD')
   newPatient(@Body() createPatientDto: CreatePatientDto) {
     return this.patientsProvider.newPatient(createPatientDto);
   }
@@ -54,6 +71,7 @@ export class PatientsController {
     type: Patient,
   })
   @ApiResponse({ status: 403, description: 'Forbidden.' })
+  @ApiTags('Patients - CRUD')
   updatePatient(
     @Param('id') id: string,
     @Body() updatePatientDto: UpdatePatientDto
@@ -69,6 +87,7 @@ export class PatientsController {
     type: Patient,
   })
   @ApiResponse({ status: 403, description: 'Forbidden.' })
+  @ApiTags('Patients - CRUD')
   deletePatient(@Param('id') id: string) {
     return this.patientsProvider.deletePatient(id);
   }

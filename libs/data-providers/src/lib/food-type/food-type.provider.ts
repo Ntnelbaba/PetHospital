@@ -10,37 +10,41 @@ export class FoodTypeProvider {
     private readonly foodTypeDbService: FoodTypeDbService,
     private http: HttpService
   ) {}
-  async getPetFoodTypes(petType: string): Promise<string[]> {
-    return await this.foodTypeDbService
+  getPetFoodTypes(petType: string): Promise<string[]> {
+    return this.foodTypeDbService
       .findIdsByPetType(petType)
       .then((res) => this.handleFoodTypeFromDb(petType, res))
       .catch((err) => this.handleErrorFromDb(petType, err));
   }
-  handleFoodTypeFromDb(
+
+  async handleFoodTypeFromDb(
     petType: string,
     foodTypes: string[]
   ): Promise<string[]> {
     if (foodTypes?.length > 0) {
       return Promise.resolve(foodTypes);
     }
-    return this.registerNewPetTypeFood(petType);
+    const registeredIds = await this.registerNewPetTypeFood(petType);
+    return registeredIds;
   }
-  handleErrorFromDb(petType: string, err): Promise<string[]> {
+  async handleErrorFromDb(petType: string, err): Promise<string[]> {
     console.error(err);
-    return this.registerNewPetTypeFood(petType);
+    const registeredIds = await this.registerNewPetTypeFood(petType);
+    return registeredIds;
   }
   async registerNewPetTypeFood(petType: string): Promise<string[]> {
-    const randomFoodTypes = this.makeRandomFoodTypes();
+    const randomFoodTypes = await this.makeRandomFoodTypes();
     const foodTypesCreated: string[] = [];
-    (await randomFoodTypes).forEach((foodType) =>
-      this.foodTypeDbService
+    for (let i = 0; i < randomFoodTypes.length; i++) {
+      const foodType = randomFoodTypes[i];
+      await this.foodTypeDbService
         .create({
           petType,
           barcode: foodType.barcode,
           genericName: foodType.genericName,
         })
-        .then((res) => foodTypesCreated.push(res._id.toHexString()))
-    );
+        .then((res) => foodTypesCreated.push(res._id.toHexString()));
+    }
     return foodTypesCreated;
   }
   async makeRandomFoodTypes(): Promise<Partial<FoodType>[]> {
@@ -52,14 +56,14 @@ export class FoodTypeProvider {
       await this.http
         .get(`https://world.openfoodfacts.org/code/${randomBarcode}.json`)
         .toPromise()
-        .then((res) => {
+        .then(async (res) => {
           const givenFoodTypeId = res?.data?.products[0]?._id;
           if (!givenFoodTypeId) {
             i--;
             retry--;
             return;
           }
-          this.http
+          await this.http
             .get(
               `https://world.openfoodfacts.org/api/v0/product/${givenFoodTypeId}.json`
             )
