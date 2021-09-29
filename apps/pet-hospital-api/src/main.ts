@@ -22,12 +22,29 @@ async function bootstrap() {
 function setupSwagger(app: INestApplication) {
   const config = new DocumentBuilder()
     .setTitle('Pet Hospital')
-    .setDescription('The Pet Hospital API description')
+    .setDescription(`
+      Welcome to the Pet Hospital project!
+
+      The controllers taged for accessablity.
+      Each controller can be seen in more then one tag.
+      Also, endpoints with lock on the row requires Authentication and Authorization (login and provide the key).
+
+      For Authentication:
+      Send post request to get access token using admin/admin from http://localhost:3000/api/auth/login.
+      See http://localhost:3000/api/#/Authenthication/AuthController_login controller.
+      
+      For Authorization:
+      Click on the button 'Authorize' and provide the access token you got from Authentication
+    `)
     .setVersion('1.0')
-    .addBearerAuth(
-      { type: 'http', scheme: 'bearer', bearerFormat: 'JWT' },
-      'access-token',
-    )
+    .addBearerAuth({
+      type: 'http',
+      scheme: 'bearer',
+      bearerFormat: 'JWT',
+      name: 'JWT',
+      description: 'Enter JWT token (Get token from http://localhost:3000/api/#/Authenthication/AuthController_login)',
+      in: 'header',
+    })
     .build();
   const document = SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('api', app, document);

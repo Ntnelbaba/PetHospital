@@ -5,7 +5,6 @@ import { AuthController } from './auth.controller';
 import { AuthService } from './auth/auth.service';
 import { jwtConstants } from './auth/constants';
 import { JwtStrategy } from './auth/jwt.strategy';
-import { LocalStrategy } from './auth/local.strategy';
 import { UsersService } from './users/users.service';
 
 @Module({
@@ -14,10 +13,10 @@ import { UsersService } from './users/users.service';
     PassportModule,
     JwtModule.register({
       secret: jwtConstants.secret,
-      signOptions: { expiresIn: '60s' },
+      signOptions: { expiresIn: '600s' },
     }),
   ],
-  providers: [AuthService, UsersService, LocalStrategy, JwtStrategy],
+  providers: [AuthService, UsersService, JwtStrategy],
   exports: [AuthService, UsersService],
 })
 export class AuthModule {}
