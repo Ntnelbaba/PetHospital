@@ -9,6 +9,9 @@ export class CurrencyProvider {
       this.getExchangeRates();
   }
   convertToDollar(amount: number, currency: CurrencyType) {
+    if (!this.exchangeRates) {
+      this.getExchangeRates();
+    }
     switch (currency) {
       case CurrencyType.USD:
         return amount;

@@ -8,6 +8,17 @@ import { CurrencyProvider } from '../currency/currency.provider';
 
 @Injectable()
 export class AppointmentProvider {
+  patientBalanceString = `
+    Patient '{name}' Balance
+  
+    Total: {total}, Paid: {paid}, Remaining: {unpaid}
+  `;
+  hospitalBalanceString = `
+    Hospital Balance
+
+    Weekly: Total: {weekly.total}, Paid: {weekly.paid}, Remaining: {weekly.unpaid}
+    Monthly: Total: {monthly.total}, Paid: {monthly.paid}, Remaining: {monthly.unpaid}
+  `;
   constructor(
     private readonly appointmentsDbService: AppointmentsDbService,
     private readonly currencyProvider: CurrencyProvider
@@ -57,11 +68,11 @@ export class AppointmentProvider {
       if (!balance) {
         throw new NotFoundException(`Patient ${patientId} not found.`);
       }
-      return `
-        Patient '${res[0].patient.name}' Balance
-        
-        Total: ${balance.total}, Paid: ${balance.paid}, Remaining: ${balance.unpaid}
-      `;
+      return this.patientBalanceString
+        .replace('{name}', res[0].patient.name)
+        .replace('{total}', `${balance.total}`)
+        .replace('{paid}', `${balance.paid}`)
+        .replace('{unpaid}', `${balance.unpaid}`);
     });
   }
   async getHospitalBalance() {
@@ -87,12 +98,13 @@ export class AppointmentProvider {
               appointment.startTime > dateMonthAgo
           )
         );
-        return `
-        Hospital Balance
-
-        Weekly: Total ${weeklyBalance.total}, Paid: ${weeklyBalance.paid}, Remaining: ${weeklyBalance.unpaid} 
-        Monthly: Total ${monthlyBalance.total}, Paid: ${monthlyBalance.paid}, Remaining: ${monthlyBalance.unpaid} 
-        `;
+        return this.hospitalBalanceString
+          .replace('{weekly.total}', `${weeklyBalance.total}`)
+          .replace('{weekly.paid}', `${weeklyBalance.paid}`)
+          .replace('{weekly.unpaid}', `${weeklyBalance.unpaid}`)
+          .replace('{monthly.total}', `${monthlyBalance.total}`)
+          .replace('{monthly.paid}', `${monthlyBalance.paid}`)
+          .replace('{monthly.unpaid}', `${monthlyBalance.unpaid}`);
       });
   }
 
