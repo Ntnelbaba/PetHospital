@@ -7,12 +7,14 @@ import {
   UpdatePatientDto,
 } from '@pet-hospital/api-interfaces';
 import { Patient } from '../model/patient';
+import { FoodTypeDbService } from './food-type.db.service';
 
 @Injectable()
 export class PatientsDbService {
   constructor(
     @InjectModel(PatientSchema.name)
-    private PatientModel: Model<PatientSchemaDocument>
+    private PatientModel: Model<PatientSchemaDocument>,
+    private foodTypeDbService: FoodTypeDbService
   ) {}
 
   async create(
@@ -22,6 +24,11 @@ export class PatientsDbService {
     const createdPatient = new this.PatientModel({
       ...createPatientDto,
       foodTypes,
+      owner: {
+        name: createPatientDto.ownerName,
+        address: createPatientDto.ownerAddress,
+        phone: createPatientDto.ownerPhone,
+      },
     });
     return createdPatient.save();
   }
@@ -61,9 +68,21 @@ export class PatientsDbService {
   }
   async findOneAndUpdate(id: string, updatePatient: UpdatePatientDto) {
     try {
-      return this.PatientModel.findByIdAndUpdate(new Types.ObjectId(id), {
-        ...updatePatient,
-      }).exec();
+      const patientFromDb = await this.PatientModel.findById(id);
+      patientFromDb.name = updatePatient.name;
+      if (updatePatient.petType != patientFromDb.petType) {
+        patientFromDb.foodTypes =
+          await this.foodTypeDbService.findSchemasByPetType(
+            updatePatient.petType
+          );
+      }
+      patientFromDb.owner = {
+        ...patientFromDb.owner,
+        name: updatePatient.ownerName,
+        address: updatePatient.ownerAddress,
+        phone: updatePatient.ownerPhone,
+      };
+      return patientFromDb.save();
     } catch (err) {
       console.error(err);
       return null;

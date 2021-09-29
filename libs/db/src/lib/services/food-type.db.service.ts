@@ -12,7 +12,9 @@ export class FoodTypeDbService {
     private FoodTypeModel: Model<FoodTypeDocument>
   ) {}
 
-  async create(createFoodTypeDto: CreateFoodTypeDto): Promise<FoodTypeDocument> {
+  async create(
+    createFoodTypeDto: CreateFoodTypeDto
+  ): Promise<FoodTypeDocument> {
     const createdFoodType = new this.FoodTypeModel(createFoodTypeDto);
     return createdFoodType.save();
   }
@@ -31,6 +33,16 @@ export class FoodTypeDbService {
       return (await this.FoodTypeModel.find({ petType }).exec()).map(
         (petFoodTypes) => petFoodTypes._id.toHexString()
       );
+    } catch (err) {
+      console.error(err);
+      return null;
+    }
+  }
+  async findSchemasByPetType(
+    petType: string
+  ): Promise<FoodTypeDocument[] | null> {
+    try {
+      return await this.FoodTypeModel.find({ petType }).exec();
     } catch (err) {
       console.error(err);
       return null;
