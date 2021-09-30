@@ -24,7 +24,7 @@ export class PatientProvider {
     );
   }
   async updatePatient(id: string, updatePatientDto: UpdatePatientDto) {
-    // Validate there is foodtype for this pettype
+    // Validate there is food type for this pet type
     await this.foodTypeProvider.getPetFoodTypes(updatePatientDto.petType);
     return this.patientsDbService
       .findOneAndUpdate(id, updatePatientDto)
