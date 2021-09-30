@@ -28,7 +28,7 @@ export class FoodTypeProvider {
     return registeredIds;
   }
   async handleErrorFromDb(petType: string, err): Promise<string[]> {
-    console.error(err);
+    console.error(err?.message ?? 'Error from db and no food types received. Create new food types');
     const registeredIds = await this.registerNewPetTypeFood(petType);
     return registeredIds;
   }
@@ -52,41 +52,49 @@ export class FoodTypeProvider {
     let retry = 5;
     const foodTypesArray: Partial<FoodType>[] = [];
     for (let i = 0; i < randArraySize && retry > 0; i++) {
-      const randomBarcode = this.getRandomBarcode();
-      await this.http
-        .get(`https://world.openfoodfacts.org/code/${randomBarcode}.json`)
-        .toPromise()
-        .then(async (res) => {
-          const givenFoodTypeId = res?.data?.products[0]?._id;
-          if (!givenFoodTypeId) {
-            i--;
-            retry--;
-            return;
-          }
-          await this.http
-            .get(
-              `https://world.openfoodfacts.org/api/v0/product/${givenFoodTypeId}.json`
-            )
-            .toPromise()
-            .then((res) => {
-              foodTypesArray.push({
-                barcode: givenFoodTypeId,
-                genericName:
-                  res.data?.product?.generic_name ??
-                  res.data?.product?.product_name,
-              });
-            });
-        });
+      const randomBarcode = this._getRandomBarcode();
+      ({ i, retry } = await this.extractFoodType(randomBarcode, i, retry, foodTypesArray));
     }
     return foodTypesArray;
   }
 
-  private getRandomBarcode() {
-    const barcodeBegining = Math.floor(100 + Math.random() * 900)
+  async extractFoodType(randomBarcode: string, i: number, retry: number, foodTypesArray: Partial<FoodType>[]) {
+    await this.http
+      .get(`https://world.openfoodfacts.org/code/${randomBarcode}.json`)
+      .toPromise()
+      .then(async (res) => {
+        const givenFoodTypeId: number = +res?.data?.products[0]?._id;
+        if (!givenFoodTypeId) {
+          i--;
+          retry--;
+          return;
+        }
+        await this.getFoodTypeDetails(givenFoodTypeId, foodTypesArray);
+      });
+    return { i, retry };
+  }
+
+  private async getFoodTypeDetails(givenFoodTypeId: number, foodTypesArray: Partial<FoodType>[]) {
+    await this.http
+      .get(
+        `https://world.openfoodfacts.org/api/v0/product/${givenFoodTypeId}.json`
+      )
+      .toPromise()
+      .then((res) => {
+        foodTypesArray.push({
+          barcode: `${givenFoodTypeId}`,
+          genericName: res.data?.product?.generic_name ??
+            res.data?.product?.product_name,
+        });
+      });
+  }
+
+  _getRandomBarcode() {
+    const barcodeBeginning = Math.floor(100 + Math.random() * 900)
       .toString()
       .replace('.', '');
     const fill = 'x'.repeat(BARCODE_LENGTH - 3);
-    const randomBarcode = barcodeBegining.concat(fill);
+    const randomBarcode = barcodeBeginning.concat(fill);
     return randomBarcode;
   }
 }
