@@ -9,6 +9,7 @@ import {
 } from '@pet-hospital/db';
 import { NotFoundException } from '@nestjs/common';
 import { of } from 'rxjs';
+import { AxiosResponse } from 'axios';
 
 const basicFoodTypeItem = { barcode: '123', genericName: 'test' } as FoodType;
 
@@ -39,7 +40,7 @@ describe('FoodTypeProvider', () => {
 
   afterEach(() => {
     jest.resetAllMocks();
-  })
+  });
 
   it('should be defined', () => {
     expect(service).toBeDefined();
@@ -135,6 +136,114 @@ describe('FoodTypeProvider', () => {
         }));
       const response = await service.makeRandomFoodTypes();
       expect(response).toStrictEqual([foodTypeExpected]);
+    });
+  });
+  describe('extractFoodType', () => {
+    it('should return i and retry minus 1', async () => {
+      const indexExpected = 1,
+        retryExpected = 4;
+      jest.spyOn(httpService, 'get').mockImplementation(() => of(null));
+      const response = await service.extractFoodType(
+        '',
+        indexExpected + 1,
+        retryExpected + 1,
+        []
+      );
+      expect(response.i).toBe(indexExpected);
+      expect(response.retry).toBe(retryExpected);
+    });
+    it('should return the array with full food type', async () => {
+      const array: Partial<FoodType>[] = [];
+      const idExpected = 1,
+        nameExpected = 'test';
+      jest.spyOn(httpService, 'get').mockImplementation(() =>
+        of({
+          data: {
+            products: [
+              {
+                _id: idExpected,
+              },
+            ],
+            product: {
+              generic_name: nameExpected,
+            },
+          },
+        } as AxiosResponse)
+      );
+      await service.extractFoodType('', 0, 0, array);
+      expect(array).toContainEqual({
+        barcode: `${idExpected}`,
+        genericName: nameExpected,
+      });
+    });
+    it('should return the array with full food type and not product type', async () => {
+      const array: Partial<FoodType>[] = [];
+      const idExpected = 1,
+        nameExpected = 'test',
+        productNameNotExpected = 'fail the test!';
+      jest.spyOn(httpService, 'get').mockImplementation(() =>
+        of({
+          data: {
+            products: [
+              {
+                _id: idExpected,
+              },
+            ],
+            product: {
+              generic_name: nameExpected,
+              product_name: productNameNotExpected,
+            },
+          },
+        } as AxiosResponse)
+      );
+      await service.extractFoodType('', 0, 0, array);
+      expect(array).toContainEqual({
+        barcode: `${idExpected}`,
+        genericName: nameExpected,
+      });
+    });
+    it('should return the array with full food type using product type', async () => {
+      const array: Partial<FoodType>[] = [];
+      const idExpected = 1,
+        productNameExpected = 'test';
+      jest.spyOn(httpService, 'get').mockImplementation(() =>
+        of({
+          data: {
+            products: [
+              {
+                _id: idExpected,
+              },
+            ],
+            product: {
+              product_name: productNameExpected,
+            },
+          },
+        } as AxiosResponse)
+      );
+      await service.extractFoodType('', 0, 0, array);
+      expect(array).toContainEqual({
+        barcode: `${idExpected}`,
+        genericName: productNameExpected,
+      });
+    });
+    it('should return the array with partial food type (only barcode)', async () => {
+      const array: Partial<FoodType>[] = [];
+      const idExpected = 1;
+      jest.spyOn(httpService, 'get').mockImplementation(() =>
+        of({
+          data: {
+            products: [
+              {
+                _id: idExpected,
+              },
+            ],
+          },
+        } as AxiosResponse)
+      );
+      await service.extractFoodType('', 0, 0, array);
+      expect(array).toContainEqual({
+        barcode: `${idExpected}`,
+      });
     });
   });
 });
